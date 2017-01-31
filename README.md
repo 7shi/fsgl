@@ -1,11 +1,15 @@
 # F# OpenGL Wrapper
 
-## License
+Explanation (Japanese):
 
-Original files are in the public domain.
+http://qiita.com/7shi/items/029343420518b6884d7c
+
+## Licenses
+
+Core files are in the public domain.
 
 * GL7.fsx
-* GL7.GL.fsx
+* GL7.GL.fsx (derived from MinGW headers)
 
 Gears are in the public domain.
 
