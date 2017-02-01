@@ -9,8 +9,13 @@ module GL7.GL
 open System
 open System.Runtime.InteropServices
 
+type Pin(o) =
+    let gch = GCHandle.Alloc(o, GCHandleType.Pinned)
+    member x.Addr = gch.AddrOfPinnedObject()
+    interface IDisposable with member x.Dispose() = gch.Free()
+
 type GLenum     = int  // uint32
-type GLboolean  = byte
+type GLboolean  = bool // byte
 type GLbitfield = int  // uint32
 type GLbyte     = sbyte
 type GLshort    = int16
@@ -23,7 +28,6 @@ type GLfloat    = float32
 type GLclampf   = float32
 type GLdouble   = float
 type GLclampd   = float
-type GLvoid     = Void
 
 [<Literal>]
 let DLL = "opengl32.dll"
@@ -683,7 +687,7 @@ let GL_TEXTURE_COMPONENTS = GL_TEXTURE_INTERNAL_FORMAT
 [<DllImport(DLL)>]extern void glBitmap(GLsizei width,GLsizei height,GLfloat xorig,GLfloat yorig,GLfloat xmove,GLfloat ymove,GLubyte[] bitmap)
 [<DllImport(DLL)>]extern void glBlendFunc(GLenum sfactor,GLenum dfactor)
 [<DllImport(DLL)>]extern void glCallList(GLuint list)
-[<DllImport(DLL)>]extern void glCallLists(GLsizei n,GLenum ``type``,GLuint[] lists)
+[<DllImport(DLL)>]extern void glCallLists(GLsizei n,GLenum ``type``,nativeint lists)
 [<DllImport(DLL)>]extern void glClear(GLbitfield mask)
 [<DllImport(DLL)>]extern void glClearAccum(GLfloat red,GLfloat green,GLfloat blue,GLfloat alpha)
 [<DllImport(DLL)>]extern void glClearColor(GLclampf red,GLclampf green,GLclampf blue,GLclampf alpha)
@@ -725,7 +729,7 @@ let GL_TEXTURE_COMPONENTS = GL_TEXTURE_INTERNAL_FORMAT
 [<DllImport(DLL)>]extern void glColor4usv(GLushort[] v)
 [<DllImport(DLL)>]extern void glColorMask(GLboolean red,GLboolean green,GLboolean blue,GLboolean alpha)
 [<DllImport(DLL)>]extern void glColorMaterial(GLenum face,GLenum mode)
-[<DllImport(DLL)>]extern void glColorPointer(GLint size,GLenum ``type``,GLsizei stride,GLvoid[] pointer)
+[<DllImport(DLL)>]extern void glColorPointer(GLint size,GLenum ``type``,GLsizei stride,nativeint pointer)
 [<DllImport(DLL)>]extern void glCopyPixels(GLint x,GLint y,GLsizei width,GLsizei height,GLenum ``type``)
 [<DllImport(DLL)>]extern void glCopyTexImage1D(GLenum target,GLint level,GLenum internalFormat,GLint x,GLint y,GLsizei width,GLint border)
 [<DllImport(DLL)>]extern void glCopyTexImage2D(GLenum target,GLint level,GLenum internalFormat,GLint x,GLint y,GLsizei width,GLsizei height,GLint border)
@@ -741,10 +745,10 @@ let GL_TEXTURE_COMPONENTS = GL_TEXTURE_INTERNAL_FORMAT
 [<DllImport(DLL)>]extern void glDisableClientState(GLenum array)
 [<DllImport(DLL)>]extern void glDrawArrays(GLenum mode,GLint first,GLsizei count)
 [<DllImport(DLL)>]extern void glDrawBuffer(GLenum mode)
-[<DllImport(DLL)>]extern void glDrawElements(GLenum mode,GLsizei count,GLenum ``type``,GLushort[] indices)
-[<DllImport(DLL)>]extern void glDrawPixels(GLsizei width,GLsizei height,GLenum format,GLenum ``type``,GLvoid[] pixels)
+[<DllImport(DLL)>]extern void glDrawElements(GLenum mode,GLsizei count,GLenum ``type``,nativeint indices)
+[<DllImport(DLL)>]extern void glDrawPixels(GLsizei width,GLsizei height,GLenum format,GLenum ``type``,nativeint pixels)
 [<DllImport(DLL)>]extern void glEdgeFlag(GLboolean flag)
-[<DllImport(DLL)>]extern void glEdgeFlagPointer(GLsizei stride,GLvoid[] pointer)
+[<DllImport(DLL)>]extern void glEdgeFlagPointer(GLsizei stride,nativeint pointer)
 [<DllImport(DLL)>]extern void glEdgeFlagv(GLboolean[] flag)
 [<DllImport(DLL)>]extern void glEnable(GLenum cap)
 [<DllImport(DLL)>]extern void glEnableClientState(GLenum array)
@@ -789,7 +793,7 @@ let GL_TEXTURE_COMPONENTS = GL_TEXTURE_INTERNAL_FORMAT
 [<DllImport(DLL)>]extern void glGetPixelMapfv(GLenum map,GLfloat[] values)
 [<DllImport(DLL)>]extern void glGetPixelMapuiv(GLenum map,GLuint[] values)
 [<DllImport(DLL)>]extern void glGetPixelMapusv(GLenum map,GLushort[] values)
-[<DllImport(DLL)>]extern void glGetPointerv(GLenum pname,GLvoid[] ``params``)
+[<DllImport(DLL)>]extern void glGetPointerv(GLenum pname,nativeint[] ``params``)
 [<DllImport(DLL)>]extern void glGetPolygonStipple(GLubyte[] mask)
 [<DllImport(DLL)>]extern GLubyte[] glGetString(GLenum name)
 [<DllImport(DLL)>]extern void glGetTexEnvfv(GLenum target,GLenum pname,GLfloat[] ``params``)
@@ -797,14 +801,14 @@ let GL_TEXTURE_COMPONENTS = GL_TEXTURE_INTERNAL_FORMAT
 [<DllImport(DLL)>]extern void glGetTexGendv(GLenum coord,GLenum pname,GLdouble[] ``params``)
 [<DllImport(DLL)>]extern void glGetTexGenfv(GLenum coord,GLenum pname,GLfloat[] ``params``)
 [<DllImport(DLL)>]extern void glGetTexGeniv(GLenum coord,GLenum pname,GLint[] ``params``)
-[<DllImport(DLL)>]extern void glGetTexImage(GLenum target,GLint level,GLenum format,GLenum ``type``,GLvoid[] pixels)
+[<DllImport(DLL)>]extern void glGetTexImage(GLenum target,GLint level,GLenum format,GLenum ``type``,nativeint pixels)
 [<DllImport(DLL)>]extern void glGetTexLevelParameterfv(GLenum target,GLint level,GLenum pname,GLfloat[] ``params``)
 [<DllImport(DLL)>]extern void glGetTexLevelParameteriv(GLenum target,GLint level,GLenum pname,GLint[] ``params``)
 [<DllImport(DLL)>]extern void glGetTexParameterfv(GLenum target,GLenum pname,GLfloat[] ``params``)
 [<DllImport(DLL)>]extern void glGetTexParameteriv(GLenum target,GLenum pname,GLint[] ``params``)
 [<DllImport(DLL)>]extern void glHint(GLenum target,GLenum mode)
 [<DllImport(DLL)>]extern void glIndexMask(GLuint mask)
-[<DllImport(DLL)>]extern void glIndexPointer(GLenum ``type``,GLsizei stride,GLvoid[] pointer)
+[<DllImport(DLL)>]extern void glIndexPointer(GLenum ``type``,GLsizei stride,nativeint pointer)
 [<DllImport(DLL)>]extern void glIndexd(GLdouble c)
 [<DllImport(DLL)>]extern void glIndexdv(GLdouble[] c)
 [<DllImport(DLL)>]extern void glIndexf(GLfloat c)
@@ -816,7 +820,7 @@ let GL_TEXTURE_COMPONENTS = GL_TEXTURE_INTERNAL_FORMAT
 [<DllImport(DLL)>]extern void glIndexub(GLubyte c)
 [<DllImport(DLL)>]extern void glIndexubv(GLubyte[] c)
 [<DllImport(DLL)>]extern void glInitNames()
-[<DllImport(DLL)>]extern void glInterleavedArrays(GLenum format,GLsizei stride,GLvoid[] pointer)
+[<DllImport(DLL)>]extern void glInterleavedArrays(GLenum format,GLsizei stride,nativeint pointer)
 [<DllImport(DLL)>]extern GLboolean glIsEnabled(GLenum cap)
 [<DllImport(DLL)>]extern GLboolean glIsList(GLuint list)
 [<DllImport(DLL)>]extern GLboolean glIsTexture(GLuint texture)
@@ -862,7 +866,7 @@ let GL_TEXTURE_COMPONENTS = GL_TEXTURE_INTERNAL_FORMAT
 [<DllImport(DLL)>]extern void glNormal3iv(GLint[] v)
 [<DllImport(DLL)>]extern void glNormal3s(GLshort nx,GLshort ny,GLshort nz)
 [<DllImport(DLL)>]extern void glNormal3sv(GLshort[] v)
-[<DllImport(DLL)>]extern void glNormalPointer(GLenum ``type``,GLsizei stride,GLfloat[] pointer)
+[<DllImport(DLL)>]extern void glNormalPointer(GLenum ``type``,GLsizei stride,nativeint pointer)
 [<DllImport(DLL)>]extern void glOrtho(GLdouble left,GLdouble right,GLdouble bottom,GLdouble top,GLdouble zNear,GLdouble zFar)
 [<DllImport(DLL)>]extern void glPassThrough(GLfloat token)
 [<DllImport(DLL)>]extern void glPixelMapfv(GLenum map,GLsizei mapsize,GLfloat[] values)
@@ -911,7 +915,7 @@ let GL_TEXTURE_COMPONENTS = GL_TEXTURE_INTERNAL_FORMAT
 [<DllImport(DLL)>]extern void glRasterPos4s(GLshort x,GLshort y,GLshort z,GLshort w)
 [<DllImport(DLL)>]extern void glRasterPos4sv(GLshort[] v)
 [<DllImport(DLL)>]extern void glReadBuffer(GLenum mode)
-[<DllImport(DLL)>]extern void glReadPixels(GLint x,GLint y,GLsizei width,GLsizei height,GLenum format,GLenum ``type``,GLvoid[] pixels)
+[<DllImport(DLL)>]extern void glReadPixels(GLint x,GLint y,GLsizei width,GLsizei height,GLenum format,GLenum ``type``,nativeint pixels)
 [<DllImport(DLL)>]extern void glRectd(GLdouble x1,GLdouble y1,GLdouble x2,GLdouble y2)
 [<DllImport(DLL)>]extern void glRectdv(GLdouble[] v1,GLdouble[] v2)
 [<DllImport(DLL)>]extern void glRectf(GLfloat x1,GLfloat y1,GLfloat x2,GLfloat y2)
@@ -963,7 +967,7 @@ let GL_TEXTURE_COMPONENTS = GL_TEXTURE_INTERNAL_FORMAT
 [<DllImport(DLL)>]extern void glTexCoord4iv(GLint[] v)
 [<DllImport(DLL)>]extern void glTexCoord4s(GLshort s,GLshort t,GLshort r,GLshort q)
 [<DllImport(DLL)>]extern void glTexCoord4sv(GLshort[] v)
-[<DllImport(DLL)>]extern void glTexCoordPointer(GLint size,GLenum ``type``,GLsizei stride,GLfloat[] pointer)
+[<DllImport(DLL)>]extern void glTexCoordPointer(GLint size,GLenum ``type``,GLsizei stride,nativeint pointer)
 [<DllImport(DLL)>]extern void glTexEnvf(GLenum target,GLenum pname,GLfloat param)
 [<DllImport(DLL)>]extern void glTexEnvfv(GLenum target,GLenum pname,GLfloat[] ``params``)
 [<DllImport(DLL)>]extern void glTexEnvi(GLenum target,GLenum pname,GLint param)
@@ -974,14 +978,14 @@ let GL_TEXTURE_COMPONENTS = GL_TEXTURE_INTERNAL_FORMAT
 [<DllImport(DLL)>]extern void glTexGenfv(GLenum coord,GLenum pname,GLfloat[] ``params``)
 [<DllImport(DLL)>]extern void glTexGeni(GLenum coord,GLenum pname,GLint param)
 [<DllImport(DLL)>]extern void glTexGeniv(GLenum coord,GLenum pname,GLint[] ``params``)
-[<DllImport(DLL)>]extern void glTexImage1D(GLenum target,GLint level,GLint internalformat,GLsizei width,GLint border,GLenum format,GLenum ``type``,GLvoid[] pixels)
-[<DllImport(DLL)>]extern void glTexImage2D(GLenum target,GLint level,GLint internalformat,GLsizei width,GLsizei height,GLint border,GLenum format,GLenum ``type``,GLvoid[] pixels)
+[<DllImport(DLL)>]extern void glTexImage1D(GLenum target,GLint level,GLint internalformat,GLsizei width,GLint border,GLenum format,GLenum ``type``,nativeint pixels)
+[<DllImport(DLL)>]extern void glTexImage2D(GLenum target,GLint level,GLint internalformat,GLsizei width,GLsizei height,GLint border,GLenum format,GLenum ``type``,nativeint pixels)
 [<DllImport(DLL)>]extern void glTexParameterf(GLenum target,GLenum pname,GLfloat param)
 [<DllImport(DLL)>]extern void glTexParameterfv(GLenum target,GLenum pname,GLfloat[] ``params``)
 [<DllImport(DLL)>]extern void glTexParameteri(GLenum target,GLenum pname,GLint param)
 [<DllImport(DLL)>]extern void glTexParameteriv(GLenum target,GLenum pname,GLint[] ``params``)
-[<DllImport(DLL)>]extern void glTexSubImage1D(GLenum target,GLint level,GLint xoffset,GLsizei width,GLenum format,GLenum ``type``,GLvoid[] pixels)
-[<DllImport(DLL)>]extern void glTexSubImage2D(GLenum target,GLint level,GLint xoffset,GLint yoffset,GLsizei width,GLsizei height,GLenum format,GLenum ``type``,GLvoid[] pixels)
+[<DllImport(DLL)>]extern void glTexSubImage1D(GLenum target,GLint level,GLint xoffset,GLsizei width,GLenum format,GLenum ``type``,nativeint pixels)
+[<DllImport(DLL)>]extern void glTexSubImage2D(GLenum target,GLint level,GLint xoffset,GLint yoffset,GLsizei width,GLsizei height,GLenum format,GLenum ``type``,nativeint pixels)
 [<DllImport(DLL)>]extern void glTranslated(GLdouble x,GLdouble y,GLdouble z)
 [<DllImport(DLL)>]extern void glTranslatef(GLfloat x,GLfloat y,GLfloat z)
 [<DllImport(DLL)>]extern void glVertex2d(GLdouble x,GLdouble y)
@@ -1008,24 +1012,24 @@ let GL_TEXTURE_COMPONENTS = GL_TEXTURE_INTERNAL_FORMAT
 [<DllImport(DLL)>]extern void glVertex4iv(GLint[] v)
 [<DllImport(DLL)>]extern void glVertex4s(GLshort x,GLshort y,GLshort z,GLshort w)
 [<DllImport(DLL)>]extern void glVertex4sv(GLshort[] v)
-[<DllImport(DLL)>]extern void glVertexPointer(GLint size,GLenum ``type``,GLsizei stride,GLfloat[] pointer)
+[<DllImport(DLL)>]extern void glVertexPointer(GLint size,GLenum ``type``,GLsizei stride,nativeint pointer)
 [<DllImport(DLL)>]extern void glViewport(GLint x,GLint y,GLsizei width,GLsizei height)
 
 type PFNGLARRAYELEMENTEXTPROC = delegate of GLint -> unit
 type PFNGLDRAWARRAYSEXTPROC = delegate of GLenum * GLint * GLsizei -> unit
-type PFNGLVERTEXPOINTEREXTPROC = delegate of GLint * GLenum * GLsizei * GLsizei * GLvoid[] -> unit
-type PFNGLNORMALPOINTEREXTPROC = delegate of GLenum * GLsizei * GLsizei * GLvoid[] -> unit
-type PFNGLCOLORPOINTEREXTPROC = delegate of GLint * GLenum * GLsizei * GLsizei * GLvoid[] -> unit
-type PFNGLINDEXPOINTEREXTPROC = delegate of GLenum * GLsizei * GLsizei * GLvoid[] -> unit
-type PFNGLTEXCOORDPOINTEREXTPROC = delegate of GLint * GLenum * GLsizei * GLsizei * GLvoid[] -> unit
+type PFNGLVERTEXPOINTEREXTPROC = delegate of GLint * GLenum * GLsizei * GLsizei * nativeint -> unit
+type PFNGLNORMALPOINTEREXTPROC = delegate of GLenum * GLsizei * GLsizei * nativeint -> unit
+type PFNGLCOLORPOINTEREXTPROC = delegate of GLint * GLenum * GLsizei * GLsizei * nativeint -> unit
+type PFNGLINDEXPOINTEREXTPROC = delegate of GLenum * GLsizei * GLsizei * nativeint -> unit
+type PFNGLTEXCOORDPOINTEREXTPROC = delegate of GLint * GLenum * GLsizei * GLsizei * nativeint -> unit
 type PFNGLEDGEFLAGPOINTEREXTPROC = delegate of GLsizei * GLsizei * GLboolean[] -> unit
-type PFNGLGETPOINTERVEXTPROC = delegate of GLenum * GLvoid[] -> unit
-type PFNGLARRAYELEMENTARRAYEXTPROC = delegate of GLenum * GLsizei * GLvoid[] -> unit
-type PFNGLDRAWRANGEELEMENTSWINPROC = delegate of GLenum * GLuint * GLuint * GLsizei * GLenum * GLvoid[] -> unit
+type PFNGLGETPOINTERVEXTPROC = delegate of GLenum * nativeint -> unit
+type PFNGLARRAYELEMENTARRAYEXTPROC = delegate of GLenum * GLsizei * nativeint -> unit
+type PFNGLDRAWRANGEELEMENTSWINPROC = delegate of GLenum * GLuint * GLuint * GLsizei * GLenum * nativeint -> unit
 type PFNGLADDSWAPHINTRECTWINPROC = delegate of GLint * GLint * GLsizei * GLsizei -> unit
-type PFNGLCOLORTABLEEXTPROC = delegate of GLenum * GLenum * GLsizei * GLenum * GLenum * GLvoid[] -> unit
-type PFNGLCOLORSUBTABLEEXTPROC = delegate of GLenum * GLsizei * GLsizei * GLenum * GLenum * GLvoid[] -> unit
-type PFNGLGETCOLORTABLEEXTPROC = delegate of GLenum * GLenum * GLenum * GLvoid[] -> unit
+type PFNGLCOLORTABLEEXTPROC = delegate of GLenum * GLenum * GLsizei * GLenum * GLenum * nativeint -> unit
+type PFNGLCOLORSUBTABLEEXTPROC = delegate of GLenum * GLsizei * GLsizei * GLenum * GLenum * nativeint -> unit
+type PFNGLGETCOLORTABLEEXTPROC = delegate of GLenum * GLenum * GLenum * nativeint -> unit
 type PFNGLGETCOLORTABLEPARAMETERIVEXTPROC = delegate of GLenum * GLenum * GLint[] -> unit
 type PFNGLGETCOLORTABLEPARAMETERFVEXTPROC = delegate of GLenum * GLenum * GLfloat[] -> unit
 

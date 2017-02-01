@@ -104,8 +104,8 @@ let private fghDrawGeometryWire11(vertices, normals,
     glEnableClientState(GL_VERTEX_ARRAY)
     glEnableClientState(GL_NORMAL_ARRAY)
 
-    glVertexPointer(3, GL_FLOAT, 0, vertices)
-    glNormalPointer(GL_FLOAT, 0, normals)
+    do use p = new Pin(vertices) in glVertexPointer(3, GL_FLOAT, 0, p.Addr)
+    do use p = new Pin(normals ) in glNormalPointer(   GL_FLOAT, 0, p.Addr)
 
     if vertIdxs = [||] then
         // Draw per face (TODO: could use glMultiDrawArrays if available)
@@ -113,11 +113,13 @@ let private fghDrawGeometryWire11(vertices, normals,
             glDrawArrays(vertexMode, i * numVertPerPart, numVertPerPart)
     else
         for i = 0 to numParts - 1 do
-            glDrawElements(vertexMode, numVertPerPart, GL_UNSIGNED_SHORT, vertIdxs.[i])
+            use p = new Pin(vertIdxs.[i])
+            glDrawElements(vertexMode, numVertPerPart, GL_UNSIGNED_SHORT, p.Addr)
 
     if vertIdxs2 <> [||] then
         for i = 0 to numParts2 - 1 do
-            glDrawElements(GL_LINE_LOOP, numVertPerPart2, GL_UNSIGNED_SHORT, vertIdxs2.[i])
+            use p = new Pin(vertIdxs2.[i])
+            glDrawElements(GL_LINE_LOOP, numVertPerPart2, GL_UNSIGNED_SHORT, p.Addr)
 
     glDisableClientState(GL_VERTEX_ARRAY)
     glDisableClientState(GL_NORMAL_ARRAY)
@@ -160,20 +162,22 @@ let private fghDrawGeometrySolid11(vertices, normals, textcs, numVertices,
     glEnableClientState(GL_VERTEX_ARRAY)
     glEnableClientState(GL_NORMAL_ARRAY)
 
-    glVertexPointer(3, GL_FLOAT, 0, vertices)
-    glNormalPointer(GL_FLOAT, 0, normals)
+    do use p = new Pin(vertices) in glVertexPointer(3, GL_FLOAT, 0, p.Addr)
+    do use p = new Pin(normals ) in glNormalPointer(   GL_FLOAT, 0, p.Addr)
 
     if textcs <> [||] then
         glEnableClientState(GL_TEXTURE_COORD_ARRAY)
-        glTexCoordPointer(2, GL_FLOAT, 0, textcs)
+        do use p = new Pin(textcs) in glTexCoordPointer(2, GL_FLOAT, 0, p.Addr)
 
     if vertIdxs = [||] then
         glDrawArrays(GL_TRIANGLES, 0, numVertices)
     elif numParts > 1 then
         for i = 0 to numParts - 1 do
-            glDrawElements(GL_TRIANGLE_STRIP, numVertIdxsPerPart, GL_UNSIGNED_SHORT, vertIdxs.[i])
+            use p = new Pin(vertIdxs.[i])
+            glDrawElements(GL_TRIANGLE_STRIP, numVertIdxsPerPart, GL_UNSIGNED_SHORT, p.Addr)
     else
-        glDrawElements(GL_TRIANGLES, numVertIdxsPerPart, GL_UNSIGNED_SHORT, vertIdxs.[0])
+        use p = new Pin(vertIdxs.[0])
+        glDrawElements(GL_TRIANGLES, numVertIdxsPerPart, GL_UNSIGNED_SHORT, p.Addr)
 
     glDisableClientState(GL_VERTEX_ARRAY)
     glDisableClientState(GL_NORMAL_ARRAY)
