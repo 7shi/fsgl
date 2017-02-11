@@ -242,7 +242,7 @@ let size = Size(256, 256)
 let f = new Form(Text = "Gears (Off-Screen Rendering)", ClientSize = size)
 let bmp = new GLBitmap(size.Width, size.Height)
 do
-    use raii = bmp.MakeCurrent() in draw()
+    use raii = bmp.MakeCurrent()
     init()
     reshape size.Width size.Height
 let p = new PictureBox(Dock = DockStyle.Fill)
